@@ -25,7 +25,7 @@ const todoSchema = new mongoose.Schema({
     status: Boolean,
 });
 
-const Todo = mongoose.model('Todo', todoSchema);
+const Todo = mongoose.model("Todo", todoSchema);
 
 app.get('/', (req,res)=>{
     res.send('Endpoint nie uzywany');
@@ -37,6 +37,31 @@ app.get('/todos', async (req,res)=>{
         res.json(todos);
     } catch (error) {
         res.status(500).json({ error: 'Error get all failed'})
+    }
+});
+
+app.post('/todos', async(req, res)=>{
+    try{
+        const newTodo = new Todo({
+            nazwa: req.body.nazwa,
+            status: false,
+        });
+        const savedTodo = await newTodo.save();
+        res.status(201).json(savedTodo);
+    } catch(error){
+        res.status(500).json({ error: 'Error failed to post'})
+    }
+});
+
+app.get('/todos/:id', async (req, res) => {
+    try {
+        const todo = await Todo.findById(req.params.id);
+        if (!todo) {
+        return res.status(404).json({ error: 'ID not found' });
+        }
+        res.json(todo);
+    } catch (error) {
+        res.status(500).json({ error: 'Server failed to respond' });
     }
 });
 
