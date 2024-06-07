@@ -13,4 +13,112 @@
     </form>
     <ul id="todo-list"></ul>
 </body>
+<script>
+    const apiUrl = 'http://localhost:3000/todos/';
+    const todoForm = document.getElementById('todo-form');
+    const todoInput = document.getElementById('todo-input');
+    const todoList = document.getElementById('todo-list');
+
+    const fetchTodos = async () => {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error('Network error');
+            }
+            const todos = await response.json();
+            todoList.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.textContent = todo.nazwa + ' - ' + (todo.status ? 'Done' : 'To Do');
+                if (todo.status) {
+                    li.classList.add('completed');
+                }
+                li.addEventListener('click', () => toggleTodoStatus(todo._id, todo.status));
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTodo(todo._id);
+                });
+
+                const updateStatusButton = document.createElement('button');
+                updateStatusButton.textContent = 'Update Status';
+                updateStatusButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleTodoStatus(todo._id, todo.status);
+                });
+
+                li.appendChild(deleteButton);
+                li.appendChild(updateStatusButton);
+                todoList.appendChild(li);
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const addTodo = async (todoName) => {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nazwa: todoName }),
+            });
+            if (!response.ok) {
+                throw new Error('Network error');
+            }
+            fetchTodos();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const toggleTodoStatus = async (id, status) => {
+        try {
+            const response = await fetch(`${apiUrl}${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: !status }),
+            });
+            if (!response.ok) {
+                throw new Error('Network error');
+            }
+            fetchTodos();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const deleteTodo = async (id) => {
+        try {
+            const response = await fetch(`${apiUrl}${id}`, {
+                method: 'DELETE',
+            });
+            if (!response.ok) {
+                throw new Error('Network error');
+            }
+            fetchTodos();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    todoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const todoName = todoInput.value.trim();
+        if (todoName) {
+            await addTodo(todoName);
+            todoInput.value = '';
+        }
+    });
+
+    fetchTodos();
+</script>
+
+
 </html>
