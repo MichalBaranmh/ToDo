@@ -2,10 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const cors = require('cors');
 
 const app = express();
 const port = 3000;
 
+app.use(cors());
 app.use(bodyParser.json());
 
 
@@ -72,6 +74,22 @@ app.delete('/todos/:id', async (req, res) => {
         return res.status(404).json({ error: 'ID not found' });
         }
         res.json(204).send();
+    } catch (error) {
+        res.status(500).json({ error: 'Server failed to respond' });
+    }
+});
+
+app.put('/todos/:id', async (req, res) => {
+    try {
+        const updatedTodo = await Todo.findByIdAndupdate(req.params.id,{
+            nazwa: req.body.nazwa,
+            status: req.body.status,
+        },{new: true}
+    );
+        if (!updatedTodo) {
+        return res.status(404).json({ error: 'ID not found' });
+        }
+        res.json(todo);
     } catch (error) {
         res.status(500).json({ error: 'Server failed to respond' });
     }
