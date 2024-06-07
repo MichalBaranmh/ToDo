@@ -65,6 +65,18 @@ app.get('/todos/:id', async (req, res) => {
     }
 });
 
+app.delete('/todos/:id', async (req, res) => {
+    try {
+        const deletedTodo = await Todo.findByIdAndDelete(req.params.id);
+        if (!deletedTodo) {
+        return res.status(404).json({ error: 'ID not found' });
+        }
+        res.json(204).send();
+    } catch (error) {
+        res.status(500).json({ error: 'Server failed to respond' });
+    }
+});
+
 app.listen(port, ()=>{
     console.log(`Server is up port= ${port}`);
 });
