@@ -81,15 +81,13 @@ app.delete('/todos/:id', async (req, res) => {
 
 app.put('/todos/:id', async (req, res) => {
     try {
-        const updatedTodo = await Todo.findByIdAndupdate(req.params.id,{
-            nazwa: req.body.nazwa,
+        const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, {
             status: req.body.status,
-        },{new: true}
-    );
+        }, { new: true });
         if (!updatedTodo) {
-        return res.status(404).json({ error: 'ID not found' });
+            return res.status(404).json({ error: 'ID not found' });
         }
-        res.json(todo);
+        res.json(updatedTodo);
     } catch (error) {
         res.status(500).json({ error: 'Server failed to respond' });
     }
